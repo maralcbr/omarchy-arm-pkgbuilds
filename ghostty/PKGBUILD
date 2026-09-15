@@ -24,8 +24,7 @@ depends=(bzip2
          pixman
          wayland libwayland-client.so
          zlib)
-makedepends=(blueprint-compiler
-             pandoc-cli
+ makedepends=(blueprint-compiler
              zig)
 optdepends=()
 _archive="$pkgname-$pkgver"
@@ -46,9 +45,8 @@ build() {
 		-Doptimize=ReleaseFast \
 		-Dgtk-x11=true \
 		-Dcpu=baseline \
-		-Dpie=true \
-		-Demit-docs \
-		-Dversion-string="$pkgver-arch$pkgrel" \
+	-Dpie=true \
+	-Dversion-string="$pkgver-arch$pkgrel" \
 		--build-id=sha1
 }
 
