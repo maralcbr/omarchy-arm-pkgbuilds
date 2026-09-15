@@ -1,0 +1,34 @@
+# Factory: Spotify's Linux repo and Snap are amd64-only. There is no
+# official aarch64 client to wrap. This package is a Chromium app-mode
+# launcher for the web player so the Omarchy menu name `spotify` exists.
+
+pkgname=spotify
+epoch=2
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Spotify Web Player launcher (no official Linux aarch64 client)'
+arch=('aarch64')
+url='https://www.spotify.com'
+license=('custom')
+# No pacman depends: chromium is not guaranteed in a factory pool ring.
+# The launcher uses chromium, Chrome, or Firefox at runtime.
+conflicts=('spotify-bin')
+options=('!strip')
+source=(
+  'spotify.sh'
+  'spotify.desktop'
+  'spotify.svg'
+)
+sha256sums=('0ae0e13f7f4435febb9c8c614cebb67a91bb60c40c8abf3bd235cf55cb2b9248'
+            '21eb376488f1c8d7e4fb107fdb3fa73534a5d18467ff1b7ac89888368fff48c5'
+            '72984c8e3ff72bcc9d1f689ecf32ea4da74b74b27cbf1341f8f36de686b3ebbb')
+
+package() {
+  install -Dm755 "${srcdir}/spotify.sh" "${pkgdir}/usr/bin/spotify"
+  install -Dm644 "${srcdir}/spotify.desktop" \
+    "${pkgdir}/usr/share/applications/spotify.desktop"
+  install -Dm644 "${srcdir}/spotify.svg" \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/spotify.svg"
+  install -Dm644 "${srcdir}/spotify.svg" \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/spotify-client.svg"
+}
