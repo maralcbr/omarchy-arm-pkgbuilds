@@ -4,7 +4,7 @@
 
 pkgname=libretro-ppsspp
 pkgver=20260907.215123.g98e70c8ca343
-pkgrel=4
+pkgrel=5
 pkgdesc='Sony PlayStation Portable core'
 arch=('x86_64' 'aarch64')
 url=https://github.com/hrydgard/ppsspp
@@ -87,6 +87,18 @@ while i < len(lines):
     out.append(lines[i])
     i += 1
 path.write_text("".join(out))
+# libpng NEON init lives only under TARGET_ARCH=arm (32-bit). ARM64
+# still compiles pngrutil with PNG_ARM_NEON and then fails to link
+# png_init_filter_functions_neon. The .S file is 32-bit ARM asm.
+path.write_text(
+    path.read_text()
+    + """
+ifeq ($(TARGET_ARCH),arm64)
+SOURCES_C += $(EXTDIR)/libpng17/arm/arm_init.c \\
+\t$(EXTDIR)/libpng17/arm/filter_neon_intrinsics.c
+endif
+"""
+)
 PY
 
   for submodule in ffmpeg assets/lang ext/glslang ext/lua; do
