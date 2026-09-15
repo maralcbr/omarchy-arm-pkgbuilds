@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>aur.git - AUR Package Repositories</title>
+<meta name='generator' content='cgit v1.3.1'/>
+<meta name='robots' content='index, nofollow'/>
+<link rel='stylesheet' type='text/css' href='/static/css/cgit.css'/>
+<script type='text/javascript' src='/cgit.js'></script>
+<link rel='shortcut icon' href='/static/images/favicon.ico'/>
+<link rel='alternate' title='Atom feed' href='http://aur.archlinux.org/cgit/aur.git/atom/?h=brave-origin-bin' type='application/atom+xml'/>
+<link rel='vcs-git' href='https://aur.archlinux.org/brave-origin-bin.git/' title='aur.git Git repository'/>
+</head>
+<body>
+		<div id="archnavbar" class="anb-aur">
+			<div id="archnavbarlogo"><h1><a href="/" title="Return to the main page">Arch Linux User Repository</a></h1></div>
+			<div id="archnavbarmenu">
+				<ul id="archnavbarlist">
+					<li id="anb-home"><a href="https://www.archlinux.org/" title="Arch news, packages, projects and more">Home</a></li>
+					<li id="anb-packages"><a href="https://www.archlinux.org/packages/" title="Arch Package Database">Packages</a></li>
+					<li id="anb-forums"><a href="https://bbs.archlinux.org/" title="Community forums">Forums</a></li>
+					<li id="anb-wiki"><a href="https://wiki.archlinux.org/" title="Community documentation">Wiki</a></li>
+					<li id="anb-gitlab"><a href="https://gitlab.archlinux.org/archlinux" title="GitLab">GitLab</a></li>
+					<li id="anb-security"><a href="https://security.archlinux.org/" title="Arch Linux Security Tracker">Security</a></li>
+					<li id="anb-aur"><a href="/" title="Arch Linux User Repository">AUR</a></li>
+					<li id="anb-download"><a href="https://www.archlinux.org/download/" title="Get Arch Linux">Download</a></li>
+				</ul>
+			</div>
+		</div><!-- #archnavbar -->
+<div id='cgit'><table id='header'>
+<tr>
+<td class='main'>AUR : brave-origin-bin.git</td></tr>
+<tr><td class='sub'>AUR Package Repositories | click <a href='/pkgbase/brave-origin-bin/'>here</a> to return to the package base details page</td><td class='sub right'></td></tr></table>
+<table class='tabs'><tr><td>
+<a href='/cgit/aur.git/?h=brave-origin-bin'>summary</a><a href='/cgit/aur.git/log/?h=brave-origin-bin'>log</a><a href='/cgit/aur.git/tree/?h=brave-origin-bin'>tree</a><a href='/cgit/aur.git/commit/?h=brave-origin-bin'>commit</a><a href='/cgit/aur.git/diff/?h=brave-origin-bin'>diff</a><a href='/cgit/aur.git/stats/?h=brave-origin-bin'>stats</a></td><td class='form'><form class='right' method='get' action='/cgit/aur.git/log/'>
+<input type='hidden' name='h' value='brave-origin-bin'/><select name='qt'>
+<option value='grep'>log msg</option>
+<option value='author'>author</option>
+<option value='committer'>committer</option>
+<option value='range'>range</option>
+</select>
+<input class='txt' type='search' size='10' name='q' value=''/>
+<input type='submit' value='search'/>
+</form>
+</td></tr></table>
+<div class='content'><div class='error'>Not found</div>
+</div> <!-- class=content -->
+<div id="footer">
+	<p>
+		Copyright &copy; 2004-2026 aurweb Development Team &ndash;
+		<strong>AUR packages are user produced content. Any use of the provided files is at your own risk.</strong>
+	</p>
+</div>
+</div> <!-- id=cgit -->
+</body>
+</html>
