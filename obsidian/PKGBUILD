@@ -6,7 +6,7 @@
 
 pkgname=obsidian
 pkgver=1.13.7
-pkgrel=3
+pkgrel=4
 pkgdesc='A powerful knowledge base that works on top of a local folder of plain text Markdown files'
 arch=('aarch64')
 url='https://github.com/obsidianmd/obsidian-releases'
@@ -20,13 +20,14 @@ source=(
   obsidian.sh
   "Obsidian-${pkgver}-arm64.AppImage::${url}/releases/download/v${pkgver}/Obsidian-${pkgver}-arm64.AppImage"
 )
-sha256sums=('SKIP'
+sha256sums=('827ee5656290b0b3f683133bd6744c539eb17fa44b89597c94395bada70c6ee7'
             'e286fd2bb2a5d346a35a577bd764c73fd5537dddec2b99a1a3e5e35974085203')
 noextract=("Obsidian-${pkgver}-arm64.AppImage")
 
 package() {
   chmod +x "${srcdir}/Obsidian-${pkgver}-arm64.AppImage"
-  "${srcdir}/Obsidian-${pkgver}-arm64.AppImage" --appimage-extract
+  # Worker containers have no FUSE; extract the squashfs instead of mounting.
+  APPIMAGE_EXTRACT_AND_RUN=1 "${srcdir}/Obsidian-${pkgver}-arm64.AppImage" --appimage-extract
 
   sed -i 's|AppRun|obsidian|' "${srcdir}/squashfs-root/md.obsidian.Obsidian.desktop"
 
@@ -40,4 +41,6 @@ package() {
   install -Dm644 "${srcdir}/squashfs-root/LICENSES.chromium.html" \
     "${pkgdir}/usr/share/licenses/${pkgname}/LICENSES.chromium.html"
   cp -a "${srcdir}/squashfs-root/usr/share/icons" "${pkgdir}/usr/share/"
+  find "${pkgdir}/usr/share/icons" -type d -exec chmod 755 {} +
+  find "${pkgdir}/usr/share/icons" -type f -exec chmod 644 {} +
 }
