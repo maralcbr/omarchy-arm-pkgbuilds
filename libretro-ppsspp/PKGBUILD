@@ -69,7 +69,7 @@ prepare() {
   # compiles them for every arm64 target, and the nested sources do not
   # produce objects under libretro/ (no rule for driver.o). Drop them so
   # the Linux ARM64 libretro core can link.
-  python - <<'PY'
+  python3 - <<'PY'
 from pathlib import Path
 path = Path("libretro/Makefile.common")
 lines = path.read_text().splitlines(True)
