@@ -4,7 +4,7 @@
 
 pkgname=libretro-ppsspp
 pkgver=20260907.215123.g98e70c8ca343
-pkgrel=2
+pkgrel=3
 pkgdesc='Sony PlayStation Portable core'
 arch=('x86_64' 'aarch64')
 url=https://github.com/hrydgard/ppsspp
@@ -40,9 +40,13 @@ source=(
   git+https://github.com/RetroAchievements/rcheevos.git
   git+https://github.com/KhronosGroup/SPIRV-Cross.git
   git+https://github.com/facebook/zstd.git
+  git+https://github.com/bylaws/libadrenotools.git
+  liblinkernsbypass::git+https://github.com/bylaws/liblinkernsbypass.git
   libretro-ppsspp-assets-path.patch
 )
 b2sums=('4d2aebd69d7dbb80874637f322bf7e2fd2a8b2b819b963386e3a9d8d57ca95fe86211b5cae0a3941eb40c4e36a24f20c5a10e3e2c24853b75e06e499403aa211'
+        'SKIP'
+        'SKIP'
         'SKIP'
         'SKIP'
         'SKIP'
@@ -69,11 +73,14 @@ prepare() {
     git config submodule.${submodule}.url ../ppsspp-${submodule#*/}
     git -c protocol.file.allow=always submodule update ${submodule}
   done
-  for submodule in ext/{aemu_postoffice,armips,cpu_features,libchdr,miniupnp,OpenXR-SDK,rapidjson,rcheevos,SPIRV-Cross,zstd} libretro/libretro-common; do
+  for submodule in ext/{aemu_postoffice,armips,cpu_features,libchdr,miniupnp,OpenXR-SDK,rapidjson,rcheevos,SPIRV-Cross,zstd,libadrenotools} libretro/libretro-common; do
     git submodule init ${submodule}
     git config submodule.${submodule}.url ../${submodule#*/}
     git -c protocol.file.allow=always submodule update ${submodule}
   done
+  git -C ext/libadrenotools submodule init lib/linkernsbypass
+  git -C ext/libadrenotools config submodule.lib/linkernsbypass.url ../../../liblinkernsbypass
+  git -C ext/libadrenotools -c protocol.file.allow=always submodule update lib/linkernsbypass
   cd ext/armips
   for submodule in ext/filesystem; do
     git submodule init ${submodule}
