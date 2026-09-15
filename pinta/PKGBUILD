@@ -2,7 +2,7 @@
 
 pkgname=pinta
 pkgver=3.1.2
-pkgrel=2
+pkgrel=3
 pkgdesc="Drawing/editing program modeled after Paint.NET. It's goal is to provide a simplified alternative to GIMP for casual users"
 
 arch=('x86_64' 'aarch64')
@@ -10,12 +10,11 @@ license=('MIT')
 url="https://pinta-project.com"
 
 makedepends=('pkgconf' 'autoconf-archive' 'intltool' 'gtk4' 'libadwaita' 'perl')
-# x86_64 builds against the Arch .NET SDK. Arch Linux ARM ships no .NET, so the
-# aarch64 build carries Microsoft's arm64 SDK tarball as a source and the
-# package depends on the dotnet-runtime provided by our dotnet-core-bin build.
-makedepends_x86_64=('dotnet-sdk' 'dotnet-runtime' 'dotnet-host' 'dotnet-targeting-pack')
+# Factory install_deps pacman-installs every depends/makedepends_* name from
+# .SRCINFO, including x86_64-only entries. Do not list Arch .NET package
+# names here until they exist in an aarch64 pool ring.
 _sdkver=10.0.400
-depends=('dotnet-runtime' 'dotnet-host' 'libadwaita' 'hicolor-icon-theme' 'webp-pixbuf-loader')
+depends=('libadwaita' 'hicolor-icon-theme' 'webp-pixbuf-loader')
 
 provides=($pkgname)
 conflicts=($pkgname-git)
@@ -77,6 +76,23 @@ package() {
   make DESTDIR="${pkgdir}" install
 
   chmod -v 755 "${pkgdir}/usr/lib/pinta/"*.dll
+
+  if [[ $CARCH == aarch64 ]]; then
+    # Framework-dependent Pinta.dll plus a private Microsoft host/runtime so
+    # the package does not need pool-ring dotnet-host / dotnet-runtime.
+    local _droot="${pkgdir}/usr/lib/pinta-dotnet"
+    install -d "${_droot}"
+    cp -a "${srcdir}/dotnet-sdk/dotnet" "${_droot}/"
+    cp -a "${srcdir}/dotnet-sdk/host" "${_droot}/"
+    cp -a "${srcdir}/dotnet-sdk/shared" "${_droot}/"
+    cat > "${pkgdir}/usr/bin/pinta" <<'EOF'
+#!/bin/bash
+export DOTNET_ROOT=/usr/lib/pinta-dotnet
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
+exec /usr/lib/pinta-dotnet/dotnet /usr/lib/pinta/Pinta.dll "$@"
+EOF
+    chmod 755 "${pkgdir}/usr/bin/pinta"
+  fi
 
   install -Dm644 -t "${pkgdir}/usr/share/doc/${pkgname}/" *.md
   install -Dm644 -t "${pkgdir}/usr/share/licenses/${pkgname}/" LICENSE*.txt
