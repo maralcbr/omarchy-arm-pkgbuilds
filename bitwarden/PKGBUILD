@@ -1,0 +1,52 @@
+# Factory: one package named bitwarden. The Omarchy menu installs
+# `bitwarden`, not `bitwarden-bin`. aarch64-only so install_deps does
+# not try the x86_64 .deb.
+
+pkgname=bitwarden
+pkgver=2026.8.0
+pkgrel=1
+pkgdesc='A secure and free password manager for all of your devices'
+arch=('aarch64')
+url='https://bitwarden.com'
+license=('GPL-3.0-only')
+depends=(
+  'alsa-lib'
+  'gtk3'
+  'libnotify'
+  'libxss'
+  'libxtst'
+  'nss'
+)
+provides=('bitwarden' 'bitwarden-bin')
+conflicts=('bitwarden-bin')
+options=('!strip')
+source=(
+  'bitwarden.sh'
+  "bitwarden_${pkgver}_arm64.tar.gz::https://github.com/bitwarden/clients/releases/download/desktop-v${pkgver}/bitwarden_${pkgver}_arm64.tar.gz"
+)
+sha256sums=('685a3279ba62b5ea90ec279b57644da747c4a83dcb67fd41bac3c25420dbb642'
+            '5962b5dd1bfe19b3c198a6b4157c4431efe078e573217bffcaafa71147476ebe')
+noextract=("bitwarden_${pkgver}_arm64.tar.gz")
+
+package() {
+  install -d "${pkgdir}/opt/Bitwarden"
+  bsdtar xf "${srcdir}/bitwarden_${pkgver}_arm64.tar.gz" -C "${pkgdir}/opt/Bitwarden/"
+
+  sed -i 's|^Exec=.*|Exec=bitwarden %U|' \
+    "${pkgdir}/opt/Bitwarden/resources/com.bitwarden.desktop.desktop"
+  install -d "${pkgdir}/usr/share/applications"
+  ln -s /opt/Bitwarden/resources/com.bitwarden.desktop.desktop \
+    "${pkgdir}/usr/share/applications/bitwarden.desktop"
+
+  for i in 16 32 64 128 256 512 1024; do
+    install -d "${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps"
+    ln -s "/opt/Bitwarden/resources/icons/${i}x${i}.png" \
+      "${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps/bitwarden.png"
+  done
+
+  if [[ -f "${pkgdir}/opt/Bitwarden/chrome-sandbox" ]]; then
+    chmod 4755 "${pkgdir}/opt/Bitwarden/chrome-sandbox"
+  fi
+
+  install -Dm755 "${srcdir}/bitwarden.sh" "${pkgdir}/usr/bin/bitwarden"
+}
