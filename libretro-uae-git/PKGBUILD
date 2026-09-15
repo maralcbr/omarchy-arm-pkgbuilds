@@ -1,0 +1,30 @@
+# Maintainer: quellen <lodgerz@gmail.com>
+#
+# Frozen commit (factory is releases-only for GitHub-URL requests).
+# Omarchy's retroarch extra list names this package libretro-uae-git.
+
+pkgname=libretro-uae-git
+pkgver=20260906.g6536174a80d7
+pkgrel=1
+pkgdesc='A port of the Commodore Amiga Emulator to libretro (WIP)'
+arch=('x86_64' 'aarch64')
+url='https://github.com/libretro/libretro-uae'
+license=('GPL-3.0-only')
+groups=('libretro')
+depends=('zlib' 'libretro-core-info')
+makedepends=('git')
+conflicts=('libretro-uae')
+provides=('libretro-uae')
+
+_libname=puae_libretro
+_gitname=libretro-uae
+source=("git+https://github.com/libretro/${_gitname}.git#commit=6536174a80d74e6c325aaa5390ff091fac8761d0")
+sha256sums=('SKIP')
+
+build() {
+  make -C "${_gitname}"
+}
+
+package() {
+  install -Dm644 "${_gitname}/${_libname}.so" "${pkgdir}/usr/lib/libretro/${_libname}.so"
+}
