@@ -32,8 +32,8 @@ package() {
   install -dm0755 "${pkgdir}/usr/bin"
   mv "${pkgdir}/usr/sbin/nordvpnd" "${pkgdir}/usr/bin/nordvpnd"
   rm -rf "${pkgdir}/etc/init.d" "${pkgdir}/usr/sbin"
-  sed -i 's|/usr/sbin/nordvpnd|/usr/bin/nordvpnd|g' \
-    "${pkgdir}"/usr/lib/systemd/system/*.service
+  find "${pkgdir}/usr/lib/systemd/system" -type f -name '*.service' \
+    -exec sed -i 's|/usr/sbin/nordvpnd|/usr/bin/nordvpnd|g' {} +
 
   chmod 750 "${pkgdir}/var/lib/nordvpn" "${pkgdir}/var/lib/nordvpn/data"
   echo 'g nordvpn - -' | install -Dm0644 /dev/stdin \
