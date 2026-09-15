@@ -1,0 +1,41 @@
+# Factory: official arm64 .deb. AUR nordvpn-bin already maps arm64→aarch64;
+# keep this recipe aarch64-only so install_deps never sees other-arch names.
+
+pkgname=nordvpn-bin
+pkgver=5.4.0
+pkgrel=1
+pkgdesc='NordVPN CLI tool for Linux'
+arch=('aarch64')
+url='https://nordvpn.com/download/linux/'
+license=('GPL3')
+depends=(
+  'ca-certificates'
+  'glibc'
+  'iproute2'
+  'libidn2'
+  'libnl'
+  'libxslt'
+  'procps-ng'
+  'sqlite'
+  'zlib'
+)
+provides=('nordvpn')
+conflicts=('openvpn-nordvpn')
+options=('!strip')
+install=nordvpn-bin.install
+source=("https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/nordvpn_${pkgver}_arm64.deb")
+sha256sums=('0a343574ec985def2d1b8ff9fde404568d95664f7e927655d11f4b01616e394e')
+
+package() {
+  bsdtar -xf data.tar.gz -C "${pkgdir}"
+
+  install -dm0755 "${pkgdir}/usr/bin"
+  mv "${pkgdir}/usr/sbin/nordvpnd" "${pkgdir}/usr/bin/nordvpnd"
+  rm -rf "${pkgdir}/etc/init.d" "${pkgdir}/usr/sbin"
+  sed -i 's|/usr/sbin/nordvpnd|/usr/bin/nordvpnd|g' \
+    "${pkgdir}"/usr/lib/systemd/system/*.service
+
+  chmod 750 "${pkgdir}/var/lib/nordvpn" "${pkgdir}/var/lib/nordvpn/data"
+  echo 'g nordvpn - -' | install -Dm0644 /dev/stdin \
+    "${pkgdir}/usr/lib/sysusers.d/${pkgname}.conf"
+}

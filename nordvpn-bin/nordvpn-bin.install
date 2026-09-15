@@ -1,0 +1,14 @@
+post_install() {
+  systemd-sysusers
+  echo 'Add your user to the nordvpn group, then re-login:'
+  echo '  sudo usermod -aG nordvpn "$USER"'
+  echo 'Start the daemon with: sudo systemctl enable --now nordvpnd.socket'
+}
+
+post_upgrade() {
+  systemd-sysusers
+}
+
+post_remove() {
+  echo 'The nordvpn group may remain; remove it with: sudo groupdel nordvpn'
+}
