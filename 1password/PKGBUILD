@@ -1,0 +1,50 @@
+# Factory: official aarch64 tarball. AUR 1password is x86_64-only and
+# bakes POLICY_OWNERS from the build host; do not do that on the worker.
+
+pkgname=1password
+_tarver=8.12.36
+pkgver=8.12.36
+pkgrel=1
+pkgdesc='Password manager and secure wallet'
+arch=('aarch64')
+url='https://1password.com'
+license=('LicenseRef-1Password-Proprietary')
+depends=('gtk3' 'nss' 'xdg-utils' 'hicolor-icon-theme')
+conflicts=('1password-beta' '1password-beta-bin')
+options=('!strip')
+source=("https://downloads.1password.com/linux/tar/stable/aarch64/1password-${_tarver}.arm64.tar.gz")
+sha256sums=('4b58851b3bf52a7bbc79243fc6b9cba9591cabe8b7eb2d0e271593bad2192af9')
+
+package() {
+  cd "${srcdir}/1password-${_tarver}.arm64"
+
+  for resolution in 32x32 64x64 256x256 512x512; do
+    install -Dm0644 "resources/icons/hicolor/${resolution}/apps/1password.png" \
+      "${pkgdir}/usr/share/icons/hicolor/${resolution}/apps/1password.png"
+  done
+  install -Dm0644 resources/com.onepassword.OnePassword.desktop \
+    "${pkgdir}/usr/share/applications/com.onepassword.OnePassword.desktop"
+
+  # Do not interpolate build-host passwd into the polkit policy.
+  sed '/org.freedesktop.policykit.owner/d' \
+    com.1password.1Password.policy.tpl \
+    > "${srcdir}/com.1password.1Password.policy"
+  install -Dm0644 "${srcdir}/com.1password.1Password.policy" \
+    "${pkgdir}/usr/share/polkit-1/actions/com.1password.1Password.policy"
+
+  install -Dm0644 resources/custom_allowed_browsers \
+    "${pkgdir}/usr/share/doc/1password/examples/custom_allowed_browsers"
+
+  install -dm0755 "${pkgdir}/opt"
+  cp -a "${srcdir}/1password-${_tarver}.arm64" "${pkgdir}/opt/1Password"
+  rm -f "${pkgdir}/opt/1Password/com.1password.1Password.policy" \
+    "${pkgdir}/opt/1Password/com.1password.1Password.policy.tpl" \
+    "${pkgdir}/opt/1Password/install_biometrics_policy.sh"
+  rm -rf "${pkgdir}/opt/1Password/resources/icons"
+  rm -f "${pkgdir}/opt/1Password/resources/com.onepassword.OnePassword.desktop" \
+    "${pkgdir}/opt/1Password/resources/custom_allowed_browsers"
+
+  install -dm0755 "${pkgdir}/usr/bin"
+  ln -s /opt/1Password/1password "${pkgdir}/usr/bin/1password"
+  chmod 4755 "${pkgdir}/opt/1Password/chrome-sandbox"
+}
