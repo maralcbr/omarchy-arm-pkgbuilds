@@ -1,9 +1,14 @@
+# Factory: bun is not in any ARM pool ring, so install_deps cannot
+# pacman-install it. Bundle the official aarch64 bun zip like ghostty
+# bundles Zig. Pin the upstream tag to a commit (factory rejects untagged
+# git URLs).
+
 pkgname=hermes-desktop
 pkgver=0.1.5
-pkgrel=1
-pkgdesc="Native speech-to-text desktop app"
-arch=('x86_64' 'aarch64')
-url="https://github.com/adityamiskin/hermes"
+pkgrel=2
+pkgdesc='Native speech-to-text desktop app'
+arch=('aarch64')
+url='https://github.com/adityamiskin/hermes'
 license=('custom')
 options=('!lto')
 depends=(
@@ -17,19 +22,28 @@ depends=(
   'alsa-lib'
   'wl-clipboard'
 )
-makedepends=('bun' 'cargo' 'git' 'clang')
+makedepends=('cargo' 'git' 'clang')
+_bunver=1.4.2
+_commit=125e0c600f123ab8975af0d0c3ed683357e8a263
 source=(
-  "git+https://github.com/adityamiskin/hermes.git#tag=v${pkgver}"
-  "hermes-desktop.desktop"
+  "git+https://github.com/adityamiskin/hermes.git#commit=${_commit}"
+  'hermes-desktop.desktop'
+  "https://github.com/oven-sh/bun/releases/download/bun-v${_bunver}/bun-linux-aarch64.zip"
 )
-sha256sums=('SKIP' 'SKIP')
+sha256sums=(
+  'SKIP'
+  'b3efc737fa03933af67f24c8150cf9e51724d58bf5aed2b10c88763e8bab169e'
+  '54328bbc2d9c8e0c9f892c544d66c57a83b84139e34909e5ee81758f1ac8fda7'
+)
 
 prepare() {
+  export PATH="${srcdir}/bun-linux-aarch64:${PATH}"
   cd "${srcdir}/hermes"
   bun install --frozen-lockfile
 }
 
 build() {
+  export PATH="${srcdir}/bun-linux-aarch64:${PATH}"
   cd "${srcdir}/hermes"
   bun run tauri build --no-bundle
 }
