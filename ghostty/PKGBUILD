@@ -4,12 +4,13 @@
 # Factory note: one package, not the official split. The worker installs
 # depends from .SRCINFO with pacman before the build, so split packages that
 # depend on each other (ghostty → ghostty-terminfo, nautilus → ghostty)
-# fail with "target not found: ghostty". Shell integration and terminfo are
-# included here; the Nautilus plugin is omitted.
+# fail with "target not found: ghostty". Shell integration is included;
+# the Nautilus plugin is omitted. Do not ship /usr/share/terminfo/g/ghostty
+# — ncurses already owns that path on Omarchy.
 
 pkgname=ghostty
 pkgver=1.3.1
-pkgrel=5
+pkgrel=6
 pkgdesc='Fast, native, feature-rich terminal emulator pushing modern features'
 arch=(aarch64)
 url="https://github.com/ghostty-org/ghostty"
@@ -79,4 +80,7 @@ package() {
 	cp -a build/* "$pkgdir/"
 	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE
 	rm -rf "$pkgdir/usr/share/nautilus-python" || true
+	# Keep xterm-ghostty; drop the name ncurses already provides.
+	rm -f "$pkgdir/usr/share/terminfo/g/ghostty"
+	rmdir "$pkgdir/usr/share/terminfo/g" 2>/dev/null || true
 }
