@@ -4,7 +4,7 @@
 
 pkgname=libretro-ppsspp
 pkgver=20260907.215123.g98e70c8ca343
-pkgrel=1
+pkgrel=2
 pkgdesc='Sony PlayStation Portable core'
 arch=('x86_64' 'aarch64')
 url=https://github.com/hrydgard/ppsspp
@@ -83,7 +83,10 @@ prepare() {
 }
 
 build() {
-  make -C libretro-ppsspp/libretro
+  # libretro/Makefile maps any uname -m containing "64" (including aarch64)
+  # onto x86_64 and then passes -msse/-msse2. platform=arm64 selects the
+  # ARM64 branch (NEON, linux/aarch64 ffmpeg, no SSE).
+  make -C libretro-ppsspp/libretro platform=arm64
 }
 
 package() {
