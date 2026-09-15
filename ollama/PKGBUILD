@@ -1,0 +1,33 @@
+# Maintainer: omarchy-pool factory <https://github.com/firemanxbr/omarchy-pool>
+#
+# Factory: the drafted `go build ./...` plus `install build/*` dumped
+# example binaries (bench, chat, generate, runner, ...) into /usr/bin.
+# Build and install only the ollama CLI.
+
+pkgname=ollama
+pkgver=0.34.0
+pkgrel=2
+pkgdesc='Get up and running with large language models locally'
+arch=('aarch64')
+url='https://github.com/ollama/ollama'
+license=('MIT')
+depends=('glibc' 'gcc-libs')
+makedepends=('go')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/ollama/ollama/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('810e7bfc2d321783f0ffd294290bca72deb292c0fd481534849dd595d59ade49')
+
+build() {
+  cd "$srcdir/ollama-${pkgver}"
+  export CGO_CPPFLAGS="$CPPFLAGS" CGO_CFLAGS="$CFLAGS"
+  export CGO_CXXFLAGS="$CXXFLAGS" CGO_LDFLAGS="$LDFLAGS"
+  export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+  mkdir -p build
+  go build -ldflags "-linkmode external -extldflags \"$LDFLAGS\" -X github.com/ollama/ollama/version.Version=${pkgver}" \
+    -o build/ollama .
+}
+
+package() {
+  cd "$srcdir/ollama-${pkgver}"
+  install -Dm755 build/ollama "$pkgdir/usr/bin/ollama"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+}
