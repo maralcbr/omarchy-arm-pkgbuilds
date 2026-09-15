@@ -1,0 +1,21 @@
+# Factory: AUR voxtype-bin is x86_64 (avx2/cuda/vulkan). Upstream ships
+# experimental Linux aarch64 CPU Whisper binaries; install that as voxtype.
+
+pkgname=voxtype-bin
+pkgver=1.0.1
+pkgrel=1
+pkgdesc='Push-to-talk voice-to-text (Linux aarch64 CPU build)'
+arch=('aarch64')
+url='https://voxtype.io'
+license=('MIT')
+depends=('alsa-lib' 'gcc-libs' 'glibc')
+provides=('voxtype')
+conflicts=('voxtype')
+options=('!strip')
+source=("voxtype-${pkgver}-linux-aarch64-cpu::https://github.com/peteonrails/voxtype/releases/download/v${pkgver}/voxtype-${pkgver}-linux-aarch64-cpu")
+sha256sums=('b5e31a85aaa952d1a78c12b8a16ba5cbdcd92eb31adc7d1a908f3c9d06edd4f1')
+
+package() {
+  install -Dm755 "${srcdir}/voxtype-${pkgver}-linux-aarch64-cpu" \
+    "${pkgdir}/usr/bin/voxtype"
+}
