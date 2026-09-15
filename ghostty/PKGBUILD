@@ -9,7 +9,7 @@
 
 pkgname=ghostty
 pkgver=1.3.1
-pkgrel=4
+pkgrel=5
 pkgdesc='Fast, native, feature-rich terminal emulator pushing modern features'
 arch=(aarch64)
 url="https://github.com/ghostty-org/ghostty"
@@ -69,6 +69,7 @@ build() {
 		-Dgtk-x11=true \
 		-Dcpu=baseline \
 		-Dpie=true \
+		-Demit-docs=false \
 		-Dversion-string="$pkgver-arch$pkgrel" \
 		--build-id=sha1
 }
