@@ -8,7 +8,7 @@
 
 pkgname=hermes-desktop
 pkgver=0.1.5
-pkgrel=5
+pkgrel=6
 pkgdesc='Native speech-to-text desktop app'
 arch=('aarch64')
 url='https://github.com/adityamiskin/hermes'
@@ -25,7 +25,7 @@ depends=(
   'alsa-lib'
   'wl-clipboard'
 )
-makedepends=('cargo' 'git' 'clang')
+makedepends=('cargo' 'git' 'clang' 'cmake')
 _bunver=1.4.2
 _commit=125e0c600f123ab8975af0d0c3ed683357e8a263
 source=(
