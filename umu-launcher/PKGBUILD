@@ -19,6 +19,7 @@ depends=(
   python
   python-xlib
   python-urllib3
+  python-pyzstd
 )
 makedepends=(
   cargo
@@ -34,9 +35,14 @@ makedepends=(
 source=("git+https://github.com/Open-Wine-Components/umu-launcher.git#tag=${pkgver}")
 sha256sums=('SKIP')
 
+prepare() {
+  cd "${srcdir}/umu-launcher"
+  git submodule update --init --recursive
+}
+
 build() {
   cd "${srcdir}/umu-launcher"
-  ./configure.sh --prefix=/usr --use-system-urllib
+  ./configure.sh --prefix=/usr --use-system-urllib --use-system-pyzstd
   make
 }
 
