@@ -1,0 +1,89 @@
+# Factory: official Linux arm64 .deb. Namcap rejects ELF under /opt, so the
+# Electron tree is installed at /usr/lib/grok-bot with a --version wrapper.
+
+pkgname=grok-bot
+pkgver=0.29.0
+pkgrel=1
+_commit=f0e5bfcee649ea84c0c61369cf896cd146d72136
+pkgdesc='Grok Bot desktop agent'
+arch=('aarch64')
+url='https://x.ai/bot'
+license=('LicenseRef-Grok-Bot')
+depends=(
+  'at-spi2-core'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libnotify'
+  'libsecret'
+  'libxss'
+  'libxtst'
+  'nss'
+  'util-linux-libs'
+  'xdg-utils'
+)
+optdepends=('libayatana-appindicator: tray support')
+provides=('sand')
+conflicts=('sand')
+options=('!strip' '!debug')
+source=(
+  "${pkgname}_${pkgver}.deb::https://downloads.cursor.com/grokbot/stable/${_commit}/linux/arm64/Grok_Bot_${pkgver}.deb"
+  'grok-bot.sh'
+  'grok-bot.desktop'
+  'LICENSE-Grok'
+)
+sha256sums=(
+  'aad1ce56402e45c3672a3dfcc3997f5bf1897c4e2e7674c10a5fabebd2775aa1'
+  '411c201c740bfa8e42eb6a45a5edc6d757247c0245bb3d8e6b1385e4346cb7cb'
+  '856056c9ca63dda5d01158ce8fb6a9a7cbb3f67c13a92b573cd196d3e50f26e7'
+  'c5f9b6d1c47e38687c5cc6865df61ed038d0c2142be9afec5096afedb190ebd5'
+)
+noextract=("${pkgname}_${pkgver}.deb")
+
+package() {
+  cd "${srcdir}"
+  bsdtar --no-same-owner -xf "${pkgname}_${pkgver}.deb"
+  bsdtar --no-same-owner -xf data.tar.xz
+
+  install -d "${pkgdir}/usr/lib/grok-bot"
+  cp -a --no-preserve=ownership "opt/Grok Bot/." "${pkgdir}/usr/lib/grok-bot/"
+
+  rm -rf "${pkgdir}/usr/share/doc"
+  if [[ -f usr/share/applications/sand.desktop ]]; then
+    rm -f "${pkgdir}/usr/share/applications/sand.desktop"
+  fi
+
+  local icon1024="${pkgdir}/usr/share/icons/hicolor/1024x1024/apps"
+  mkdir -p "${pkgdir}/usr/share/icons/hicolor/1024x1024/apps" \
+    "${pkgdir}/usr/share/icons/hicolor/512x512/apps"
+  if [[ -f usr/share/icons/hicolor/1024x1024/apps/sand.png ]]; then
+    install -Dm644 usr/share/icons/hicolor/1024x1024/apps/sand.png \
+      "${icon1024}/grok-bot.png"
+  fi
+  if [[ -f usr/share/icons/hicolor/1024x1024/apps/grok-bot.png ]]; then
+    install -Dm644 usr/share/icons/hicolor/1024x1024/apps/grok-bot.png \
+      "${icon1024}/grok-bot.png"
+  fi
+  if [[ -f "${icon1024}/grok-bot.png" ]]; then
+    install -Dm644 "${icon1024}/grok-bot.png" \
+      "${pkgdir}/usr/share/icons/hicolor/512x512/apps/grok-bot.png"
+  fi
+
+  install -Dm755 "${srcdir}/grok-bot.sh" "${pkgdir}/usr/bin/grok-bot"
+  ln -s grok-bot "${pkgdir}/usr/bin/sand"
+  install -Dm644 "${srcdir}/grok-bot.desktop" \
+    "${pkgdir}/usr/share/applications/grok-bot.desktop"
+  install -Dm644 "${srcdir}/LICENSE-Grok" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-Grok"
+  if [[ -f "${pkgdir}/usr/lib/grok-bot/LICENSE.electron.txt" ]]; then
+    install -Dm644 "${pkgdir}/usr/lib/grok-bot/LICENSE.electron.txt" \
+      "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.electron.txt"
+  fi
+  if [[ -f "${pkgdir}/usr/lib/grok-bot/LICENSES.chromium.html" ]]; then
+    install -Dm644 "${pkgdir}/usr/lib/grok-bot/LICENSES.chromium.html" \
+      "${pkgdir}/usr/share/licenses/${pkgname}/LICENSES.chromium.html"
+  fi
+
+  if [[ -f "${pkgdir}/usr/lib/grok-bot/chrome-sandbox" ]]; then
+    chmod 4755 "${pkgdir}/usr/lib/grok-bot/chrome-sandbox"
+  fi
+}

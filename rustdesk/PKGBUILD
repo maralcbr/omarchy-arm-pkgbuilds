@@ -1,0 +1,63 @@
+# Factory: official aarch64 .deb. Namcap rejects ELF under usr/share/, so the
+# Flutter tree is installed at /usr/lib/rustdesk with a --version wrapper.
+
+pkgname=rustdesk
+pkgver=1.4.9
+pkgrel=1
+pkgdesc='An open-source remote desktop application'
+arch=('aarch64')
+url='https://rustdesk.com'
+license=('AGPL-3.0-only')
+depends=(
+  'gtk3'
+  'libxcb'
+  'libxfixes'
+  'libxtst'
+  'alsa-lib'
+  'xdotool'
+  'libva'
+  'gstreamer'
+  'gst-plugins-base'
+  'pam'
+  'curl'
+)
+optdepends=('libayatana-appindicator: tray support')
+provides=('rustdesk')
+conflicts=('rustdesk-bin')
+options=('!strip')
+source=(
+  'rustdesk.sh'
+  'LICENCE'
+  "rustdesk-${pkgver}-aarch64.deb::https://github.com/rustdesk/rustdesk/releases/download/${pkgver}/rustdesk-${pkgver}-aarch64.deb"
+)
+sha256sums=(
+  '018e9d66ccb89ff1d18fb79dfb0034c47d96a1eed93ec8621b68e83dbee5265a'
+  '8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef'
+  'ce62c996f14d33f3bbe3a330e953644a44bace7f05885a7953f7395d69fb49c0'
+)
+noextract=("rustdesk-${pkgver}-aarch64.deb")
+
+package() {
+  cd "${srcdir}"
+  bsdtar --no-same-owner -xf "rustdesk-${pkgver}-aarch64.deb"
+  bsdtar --no-same-owner -xf data.tar.xz
+
+  install -d "${pkgdir}/usr/lib/rustdesk"
+  cp -a --no-preserve=ownership usr/share/rustdesk/. "${pkgdir}/usr/lib/rustdesk/"
+  chmod 755 "${pkgdir}/usr/lib/rustdesk/rustdesk"
+
+  install -Dm755 "${srcdir}/rustdesk.sh" "${pkgdir}/usr/bin/rustdesk"
+  install -Dm644 "${srcdir}/LICENCE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENCE"
+
+  if [[ -f usr/share/applications/rustdesk.desktop ]]; then
+    install -Dm644 usr/share/applications/rustdesk.desktop \
+      "${pkgdir}/usr/share/applications/rustdesk.desktop"
+  fi
+  if [[ -f usr/share/applications/rustdesk-link.desktop ]]; then
+    install -Dm644 usr/share/applications/rustdesk-link.desktop \
+      "${pkgdir}/usr/share/applications/rustdesk-link.desktop"
+  fi
+  if [[ -d usr/share/icons ]]; then
+    cp -a --no-preserve=ownership usr/share/icons "${pkgdir}/usr/share/"
+  fi
+}

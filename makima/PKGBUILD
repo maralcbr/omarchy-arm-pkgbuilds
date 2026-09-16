@@ -1,0 +1,31 @@
+# Factory: build from the git tag. Upstream releases only ship an x86_64 binary.
+
+pkgname=makima
+pkgver=0.10.3
+pkgrel=1
+pkgdesc='Daemon to remap keyboards, mice, controllers and tablets'
+arch=('aarch64')
+url='https://github.com/cyber-sushi/makima'
+license=('GPL-3.0-only')
+depends=('gcc-libs' 'glibc' 'systemd-libs')
+makedepends=('cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('5e662a37e9986596bed893c6ecb52db56ead9c5af131687ff04c043c0240657c')
+
+build() {
+  cd "$pkgname-$pkgver"
+  export CARGO_TARGET_DIR=target
+  cargo build --frozen --release
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm755 target/release/makima "$pkgdir/usr/bin/makima"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  if [[ -f makima.service ]]; then
+    install -Dm644 makima.service "$pkgdir/usr/lib/systemd/user/makima.service"
+  fi
+  if [[ -f 50-makima.rules ]]; then
+    install -Dm644 50-makima.rules "$pkgdir/usr/lib/udev/rules.d/50-makima.rules"
+  fi
+}

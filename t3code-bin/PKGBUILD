@@ -1,0 +1,104 @@
+# Factory: official Linux arm64 AppImage, unpacked like the x86 t3code-bin
+# recipe. Namcap rejects ELF under /opt and running Electron as root, so the
+# tree lands in /usr/lib/t3code with --version wrappers.
+
+pkgname=t3code-bin
+pkgver=0.0.42
+pkgrel=1
+pkgdesc='Open-source control plane for coding agents'
+arch=('aarch64')
+url='https://t3.codes'
+license=('MIT')
+depends=(
+  'alsa-lib'
+  'at-spi2-core'
+  'cairo'
+  'dbus'
+  'expat'
+  'gcc-libs'
+  'glib2'
+  'glibc'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libcups'
+  'libnotify'
+  'libx11'
+  'libxcb'
+  'libxcomposite'
+  'libxdamage'
+  'libxext'
+  'libxfixes'
+  'libxkbcommon'
+  'libxrandr'
+  'mesa'
+  'nspr'
+  'nss'
+  'pango'
+  'systemd-libs'
+  'xdg-utils'
+)
+makedepends=('squashfs-tools')
+optdepends=(
+  'claude-code: drive Claude Code from the app'
+  'cursor-cli: drive Cursor from the app'
+  'github-copilot-cli: drive Copilot from the app'
+  'openai-codex: drive Codex from the app'
+)
+provides=("t3code=${pkgver}")
+conflicts=('t3code')
+options=('!debug' '!strip')
+_appimage="T3-Code-${pkgver}-arm64.AppImage"
+source=(
+  't3code-launcher.sh'
+  't3-launcher.sh'
+  'LICENSE'
+  "${_appimage}::https://github.com/pingdotgg/t3code/releases/download/v${pkgver}/${_appimage}"
+)
+noextract=("${_appimage}")
+sha256sums=(
+  'bb2f8653b2ad33622eb53812b71044511a8e63bfdc150b776c2d0f2baf38cadb'
+  '0379404d47a96d7b7d51b8a46f16ab8e33cb4f0e197f52e9a9226053903ca5db'
+  '935d8f2af0c703f9c39517ee57cc4930b19d02d533be930b63f0e82f93614b43'
+  'c256d872d358e9f2c91328b0154c6311fa2eb16386ef6f788fcda12d73cf2836'
+)
+
+prepare() {
+  cd "${srcdir}"
+  rm -rf squashfs-root
+  chmod +x "${_appimage}"
+  if ! "./${_appimage}" --appimage-extract >/dev/null 2>&1; then
+    local offset
+    offset="$(LC_ALL=C grep -aob 'hsqs' "${_appimage}" | head -1 | cut -d: -f1)"
+    [[ -n $offset ]] || { echo "could not find squashfs offset in ${_appimage}" >&2; return 1; }
+    unsquashfs -o "${offset}" -d squashfs-root "${_appimage}" >/dev/null
+  fi
+}
+
+package() {
+  cd "${srcdir}/squashfs-root"
+
+  local icon size
+  for icon in usr/share/icons/hicolor/*/apps/t3code.png; do
+    [[ -f $icon ]] || continue
+    size="${icon#usr/share/icons/hicolor/}"
+    install -Dm644 "${icon}" "${pkgdir}/usr/share/icons/hicolor/${size%%/*}/apps/t3code.png"
+  done
+
+  if [[ -f t3code.desktop ]]; then
+    sed -e 's|^Exec=.*|Exec=t3code %U|' -e 's|^Name=.*|Name=T3 Code|' \
+      -e '/^X-AppImage-Version=/d' t3code.desktop \
+      > "${srcdir}/t3code.desktop.arch"
+    install -Dm644 "${srcdir}/t3code.desktop.arch" \
+      "${pkgdir}/usr/share/applications/t3code.desktop"
+  fi
+
+  rm -rf AppRun .DirIcon usr t3code.desktop t3code.png
+  install -d "${pkgdir}/usr/lib/t3code"
+  cp -a . "${pkgdir}/usr/lib/t3code/"
+  chmod -R a+rX "${pkgdir}/usr/lib/t3code"
+  [[ -f ${pkgdir}/usr/lib/t3code/chrome-sandbox ]] && chmod 4755 "${pkgdir}/usr/lib/t3code/chrome-sandbox"
+
+  install -Dm755 "${srcdir}/t3code-launcher.sh" "${pkgdir}/usr/bin/t3code"
+  install -Dm755 "${srcdir}/t3-launcher.sh" "${pkgdir}/usr/bin/t3"
+  install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
