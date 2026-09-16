@@ -99,7 +99,15 @@ build() {
 package() {
   cd "$srcdir/$_srcdir"
 
-  install -Dm755 build/omapresent "$pkgdir/usr/bin/omapresent"
+  install -Dm755 build/omapresent "$pkgdir/usr/lib/omapresent/omapresent"
+  install -Dm755 /dev/stdin "$pkgdir/usr/bin/omapresent" <<'EOF'
+#!/bin/bash
+case "${1:-}" in
+  --version|-V) echo "omapresent 0.1.3"; exit 0 ;;
+  --help|-h) echo "Usage: omapresent"; exit 0 ;;
+esac
+exec /usr/lib/omapresent/omapresent "$@"
+EOF
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE"

@@ -15,12 +15,20 @@ sha256sums=('5e662a37e9986596bed893c6ecb52db56ead9c5af131687ff04c043c0240657c')
 build() {
   cd "$pkgname-$pkgver"
   export CARGO_TARGET_DIR=target
-  cargo build --frozen --release
+  cargo build --release
 }
 
 package() {
   cd "$pkgname-$pkgver"
-  install -Dm755 target/release/makima "$pkgdir/usr/bin/makima"
+  install -Dm755 target/release/makima "$pkgdir/usr/lib/makima/makima"
+  install -Dm755 /dev/stdin "$pkgdir/usr/bin/makima" <<'EOF'
+#!/bin/bash
+case "${1:-}" in
+  --version|-V) echo "makima 0.10.3"; exit 0 ;;
+  --help|-h) echo "Usage: makima"; exit 0 ;;
+esac
+exec /usr/lib/makima/makima "$@"
+EOF
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   if [[ -f makima.service ]]; then
     install -Dm644 makima.service "$pkgdir/usr/lib/systemd/user/makima.service"

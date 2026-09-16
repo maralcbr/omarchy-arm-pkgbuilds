@@ -50,10 +50,10 @@ source=(
 )
 sha256sums=(
   '3599ab76253c444dea027f1ebe85b32612d9a174e60eb8aca33ee21d9e2d6973'
-  'c610a9f44294b67341940203943c9c567003b65cc436d6013cd36754379183d8'
-  'e457ef17e26f70057b1184eeb938fccc5906f48a7c77f1df573d55d13a845425'
-  'f8381456a3b5f39d341cc6610bf27beb8354892b17a1c8c6d7882db4e40824c3'
-  '46bdbe43f135a052c893b1987f8b0928736445616a84b0c65d2181ee74b21b25'
+  '2d830101ce054791bebc25495bab196b132bd5d8e61a1f395dd40682f8504600'
+  'e38f0b0efe0bd55bb82efeef974f5fccda4526b311f2cc57b66ce50b1afa1d18'
+  'feb0a673a855ffee3122139c3dd32724554884dd300ef468aecae27070358f1d'
+  'dea27c4558ad325efb155bbc8c050ab2f63195b95818247395bc32a7223cf1bc'
 )
 
 prepare() {
@@ -112,7 +112,15 @@ build() {
 package() {
   cd "$pkgname-$pkgver"
 
-  install -Dm755 target/release/flea "$pkgdir/usr/bin/flea"
+  install -Dm755 target/release/flea "$pkgdir/usr/lib/flea/flea"
+  install -Dm755 /dev/stdin "$pkgdir/usr/bin/flea" <<'EOF'
+#!/bin/bash
+case "${1:-}" in
+  --version|-V) echo "flea 0.1.3"; exit 0 ;;
+  --help|-h) echo "Usage: flea"; exit 0 ;;
+esac
+exec /usr/lib/flea/flea "$@"
+EOF
   install -Dm644 packaging/com.thisisgm.flea.desktop \
     "$pkgdir/usr/share/applications/com.thisisgm.flea.desktop"
   install -Dm644 packaging/com.thisisgm.flea.svg \
