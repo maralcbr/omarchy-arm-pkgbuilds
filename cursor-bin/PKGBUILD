@@ -2,12 +2,13 @@
 # and rebuilds against electron42, which is not in any ARM pool ring.
 #
 # Gate: namcap rejects ELF binaries under usr/share/. Install the upstream
-# tree under /usr/lib/cursor and keep /usr/bin/cursor a wrapper that answers
-# --version/--help without starting Electron as root.
+# tree under /usr/lib/cursor, ship LicenseRef-Cursor_EULA under
+# /usr/share/licenses/cursor-bin, and keep /usr/bin/cursor a wrapper that
+# answers --version/--help without starting Electron as root.
 
 pkgname=cursor-bin
 pkgver=3.20.21
-pkgrel=2
+pkgrel=3
 pkgdesc='The AI Code Editor (binary release)'
 arch=('aarch64')
 url='https://www.cursor.com'
@@ -27,9 +28,11 @@ options=('!strip')
 _commit=f09fca384ceca23f7bf21f9c23655b162641d747
 source=(
   'cursor.sh'
+  'LICENSE-Cursor'
   "cursor_${pkgver}_arm64.deb::https://downloads.cursor.com/production/${_commit}/linux/arm64/deb/arm64/deb/cursor_${pkgver}_arm64.deb"
 )
 sha256sums=('a1bbf1d8423332a012697ce99e0795bed8d4431dcb56d554207e696d0f5bf0bf'
+            'ecd0439823bd853a90be379a892a782bcb9a17e88c9d76ef4a28e42e363828e4'
             '609707fcd32a443448fcd01fc5046d541e4ff1334d670ac13648d0782f5c47f1')
 noextract=("cursor_${pkgver}_arm64.deb")
 # Upstream ships no automated test target for the repackaged desktop binary.
@@ -49,6 +52,7 @@ package() {
   fi
 
   install -Dm755 "${srcdir}/cursor.sh" "${pkgdir}/usr/bin/cursor"
+  install -Dm644 "${srcdir}/LICENSE-Cursor" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-Cursor"
 
   if [[ -f "${pkgdir}/usr/lib/cursor/chrome-sandbox" ]]; then
     chmod 4755 "${pkgdir}/usr/lib/cursor/chrome-sandbox"

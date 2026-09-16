@@ -1,0 +1,6 @@
+Taken from: https://github.com/adityamiskin/hermes
+
+Hermes Desktop is redistributed from the upstream git snapshot pinned in this
+PKGBUILD. The GitHub repository does not publish an SPDX license file. This
+package grants no rights beyond whatever the upstream authors allow at
+https://github.com/adityamiskin/hermes

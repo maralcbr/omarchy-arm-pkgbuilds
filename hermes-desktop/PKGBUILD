@@ -8,7 +8,7 @@
 
 pkgname=hermes-desktop
 pkgver=0.1.5
-pkgrel=3
+pkgrel=4
 pkgdesc='Native speech-to-text desktop app'
 arch=('aarch64')
 url='https://github.com/adityamiskin/hermes'
@@ -31,11 +31,13 @@ _commit=125e0c600f123ab8975af0d0c3ed683357e8a263
 source=(
   "git+https://github.com/adityamiskin/hermes.git#commit=${_commit}"
   'hermes-desktop.desktop'
+  'LICENSE-Hermes'
   "https://github.com/oven-sh/bun/releases/download/bun-v${_bunver}/bun-linux-aarch64.zip"
 )
 sha256sums=(
   'SKIP'
   'b3efc737fa03933af67f24c8150cf9e51724d58bf5aed2b10c88763e8bab169e'
+  'ac4044104f152ad67949e81c328ca49e698e9279cf6c57eb520f860140fea414'
   '54328bbc2d9c8e0c9f892c544d66c57a83b84139e34909e5ee81758f1ac8fda7'
 )
 
@@ -59,4 +61,5 @@ package() {
   install -Dm644 "${srcdir}/hermes-desktop.desktop" \
     "${pkgdir}/usr/share/applications/hermes-desktop.desktop"
   install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 "${srcdir}/LICENSE-Hermes" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-Hermes"
 }
