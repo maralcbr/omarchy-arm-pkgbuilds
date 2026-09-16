@@ -14,7 +14,7 @@ pkgver=10.0.11.sdk400
 _runtimever=10.0.11
 _sdkver=10.0.400
 _short_ver=10.0
-pkgrel=3
+pkgrel=4
 pkgdesc='.NET host, runtime and SDK (Microsoft arm64 binaries)'
 arch=('aarch64')
 url='https://www.microsoft.com/net/core'
@@ -65,27 +65,28 @@ sha512sums_aarch64=('a1b45da58e5591fff909a6126ac6bfc1ef9c12bc72c0625f7815e83a82b
 package() {
   local msarch=arm64 root="${pkgdir}/usr/lib/dotnet"
 
-  install -dm 755 "${pkgdir}"/usr/{bin,lib,share/licenses/dotnet-host}
+  install -dm 755 "${pkgdir}"/usr/{bin,lib,share/licenses/dotnet-core}
   install -dm 755 "${root}" "${root}/shared" "${root}/packs"
   cp -dr --no-preserve='ownership' dotnet host dnx "${root}/"
-  cp -dr --no-preserve='ownership' LICENSE.txt ThirdPartyNotices.txt "${pkgdir}"/usr/share/licenses/dotnet-host
+  cp -dr --no-preserve='ownership' LICENSE.txt ThirdPartyNotices.txt "${pkgdir}"/usr/share/licenses/dotnet-core
+  ln -s dotnet-core "${pkgdir}"/usr/share/licenses/dotnet-host
   ln -sf /usr/lib/dotnet/dotnet "${pkgdir}"/usr/bin/dotnet
   ln -sf /usr/lib/dotnet/dnx "${pkgdir}"/usr/bin/dnx
   ln -sf /usr/lib/dotnet/host/fxr/"${_runtimever}"/libhostfxr.so "${pkgdir}"/usr/lib/libhostfxr.so
   install -Dm 644 "${srcdir}"/dotnet.sh -t "${pkgdir}"/etc/profile.d/
 
   cp -dr --no-preserve='ownership' shared/Microsoft.NETCore.App "${root}/shared/"
-  ln -s dotnet-host "${pkgdir}"/usr/share/licenses/dotnet-runtime
+  ln -s dotnet-core "${pkgdir}"/usr/share/licenses/dotnet-runtime
 
   cp -dr --no-preserve='ownership' shared/Microsoft.AspNetCore.App "${root}/shared/"
-  ln -s dotnet-host "${pkgdir}"/usr/share/licenses/aspnet-runtime
+  ln -s dotnet-core "${pkgdir}"/usr/share/licenses/aspnet-runtime
 
   cp -dr --no-preserve='ownership' sdk sdk-manifests templates "${root}/"
-  ln -s dotnet-host "${pkgdir}"/usr/share/licenses/dotnet-sdk
+  ln -s dotnet-core "${pkgdir}"/usr/share/licenses/dotnet-sdk
 
   cp -dr --no-preserve='ownership' packs/Microsoft.NETCore.App.{Host.linux-${msarch},Ref} "${root}/packs/"
-  ln -s dotnet-host "${pkgdir}"/usr/share/licenses/dotnet-targeting-pack
+  ln -s dotnet-core "${pkgdir}"/usr/share/licenses/dotnet-targeting-pack
 
   cp -dr --no-preserve='ownership' packs/Microsoft.AspNetCore.App.Ref "${root}/packs/"
-  ln -s dotnet-host "${pkgdir}"/usr/share/licenses/aspnet-targeting-pack
+  ln -s dotnet-core "${pkgdir}"/usr/share/licenses/aspnet-targeting-pack
 }
