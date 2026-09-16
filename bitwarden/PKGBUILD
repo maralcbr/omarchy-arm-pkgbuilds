@@ -1,10 +1,14 @@
 # Factory: one package named bitwarden. The Omarchy menu installs
 # `bitwarden`, not `bitwarden-bin`. aarch64-only so install_deps does
 # not try the x86_64 .deb.
+#
+# Gate: ship the bundled Electron under /usr/lib/bitwarden (not /opt/),
+# normalize ownership to root, and keep /usr/bin/bitwarden a wrapper that
+# answers --version/--help without starting Electron as root.
 
 pkgname=bitwarden
 pkgver=2026.8.0
-pkgrel=1
+pkgrel=2
 pkgdesc='A secure and free password manager for all of your devices'
 arch=('aarch64')
 url='https://bitwarden.com'
@@ -24,28 +28,30 @@ source=(
   'bitwarden.sh'
   "bitwarden_${pkgver}_arm64.tar.gz::https://github.com/bitwarden/clients/releases/download/desktop-v${pkgver}/bitwarden_${pkgver}_arm64.tar.gz"
 )
-sha256sums=('685a3279ba62b5ea90ec279b57644da747c4a83dcb67fd41bac3c25420dbb642'
+sha256sums=('5b67638da466d3dea95e1117b8651bf781d30879c9280e8a725d407464e5f9f7'
             '5962b5dd1bfe19b3c198a6b4157c4431efe078e573217bffcaafa71147476ebe')
 noextract=("bitwarden_${pkgver}_arm64.tar.gz")
+# Upstream ships no test suite for the repackaged desktop tarball.
+# check() intentionally omitted.
 
 package() {
-  install -d "${pkgdir}/opt/Bitwarden"
-  bsdtar xf "${srcdir}/bitwarden_${pkgver}_arm64.tar.gz" -C "${pkgdir}/opt/Bitwarden/"
+  install -d "${pkgdir}/usr/lib/bitwarden"
+  bsdtar --no-same-owner -xf "${srcdir}/bitwarden_${pkgver}_arm64.tar.gz" -C "${pkgdir}/usr/lib/bitwarden/"
 
   sed -i 's|^Exec=.*|Exec=bitwarden %U|' \
-    "${pkgdir}/opt/Bitwarden/resources/com.bitwarden.desktop.desktop"
+    "${pkgdir}/usr/lib/bitwarden/resources/com.bitwarden.desktop.desktop"
   install -d "${pkgdir}/usr/share/applications"
-  ln -s /opt/Bitwarden/resources/com.bitwarden.desktop.desktop \
+  ln -s /usr/lib/bitwarden/resources/com.bitwarden.desktop.desktop \
     "${pkgdir}/usr/share/applications/bitwarden.desktop"
 
   for i in 16 32 64 128 256 512 1024; do
     install -d "${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps"
-    ln -s "/opt/Bitwarden/resources/icons/${i}x${i}.png" \
+    ln -s "/usr/lib/bitwarden/resources/icons/${i}x${i}.png" \
       "${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps/bitwarden.png"
   done
 
-  if [[ -f "${pkgdir}/opt/Bitwarden/chrome-sandbox" ]]; then
-    chmod 4755 "${pkgdir}/opt/Bitwarden/chrome-sandbox"
+  if [[ -f "${pkgdir}/usr/lib/bitwarden/chrome-sandbox" ]]; then
+    chmod 4755 "${pkgdir}/usr/lib/bitwarden/chrome-sandbox"
   fi
 
   install -Dm755 "${srcdir}/bitwarden.sh" "${pkgdir}/usr/bin/bitwarden"

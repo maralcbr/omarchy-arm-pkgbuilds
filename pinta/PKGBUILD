@@ -2,7 +2,7 @@
 
 pkgname=pinta
 pkgver=3.1.2
-pkgrel=3
+pkgrel=4
 pkgdesc="Drawing/editing program modeled after Paint.NET. It's goal is to provide a simplified alternative to GIMP for casual users"
 
 arch=('x86_64' 'aarch64')
@@ -13,6 +13,9 @@ makedepends=('pkgconf' 'autoconf-archive' 'intltool' 'gtk4' 'libadwaita' 'perl')
 # Factory install_deps pacman-installs every depends/makedepends_* name from
 # .SRCINFO, including x86_64-only entries. Do not list Arch .NET package
 # names here until they exist in an aarch64 pool ring.
+#
+# Gate/project build: configure needs a dotnet host on aarch64. Bundle the
+# official arm64 SDK tarball in prepare() — do not rely on pacman dotnet-*.
 _sdkver=10.0.400
 depends=('libadwaita' 'hicolor-icon-theme' 'webp-pixbuf-loader')
 

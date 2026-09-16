@@ -1,46 +1,64 @@
-# Maintainer: NekoLOvO <nekolyin@qq.com>
-#
 # Factory: one package named obsidian. A split (obsidian-bin / obsidian-appimage)
 # never produces obsidian-*.pkg.tar.zst, so complete() cannot stage it.
-# aarch64 only has the official arm64 AppImage (no .deb).
+# aarch64 only has the official arm64 tarball (no .deb).
+#
+# Gate: ship the bundled Electron under /usr/lib/obsidian (not /opt/ or an
+# AppImage), use LicenseRef-Obsidian, and keep /usr/bin/obsidian a wrapper
+# that answers --version/--help without starting Electron as root.
 
 pkgname=obsidian
 pkgver=1.13.7
-pkgrel=4
+pkgrel=5
 pkgdesc='A powerful knowledge base that works on top of a local folder of plain text Markdown files'
 arch=('aarch64')
-url='https://github.com/obsidianmd/obsidian-releases'
-license=('custom:none')
-depends=('zlib' 'fuse2' 'hicolor-icon-theme')
+url='https://obsidian.md'
+license=('LicenseRef-Obsidian')
+depends=(
+  'gtk3'
+  'nss'
+  'libxss'
+  'alsa-lib'
+  'libnotify'
+  'libxtst'
+  'at-spi2-core'
+  'libdrm'
+  'mesa'
+  'libxkbcommon'
+  'libcups'
+  'fontconfig'
+  'bash'
+  'zlib'
+  'hicolor-icon-theme'
+  'xdg-utils'
+)
 conflicts=('obsidian-bin' 'obsidian-appimage')
 provides=('obsidian')
 options=('!strip')
 install=obsidian.install
 source=(
-  obsidian.sh
-  "Obsidian-${pkgver}-arm64.AppImage::${url}/releases/download/v${pkgver}/Obsidian-${pkgver}-arm64.AppImage"
+  'obsidian.sh'
+  'obsidian.desktop'
+  'LICENSE-Obsidian'
+  "obsidian-${pkgver}-arm64.tar.gz::https://github.com/obsidianmd/obsidian-releases/releases/download/v${pkgver}/obsidian-${pkgver}-arm64.tar.gz"
 )
-sha256sums=('827ee5656290b0b3f683133bd6744c539eb17fa44b89597c94395bada70c6ee7'
-            'e286fd2bb2a5d346a35a577bd764c73fd5537dddec2b99a1a3e5e35974085203')
-noextract=("Obsidian-${pkgver}-arm64.AppImage")
+sha256sums=(
+  '23d9cd9558746e70261d4c02e7e2f0423c10931c62543f89539332d49cef3218'
+  '99c075af3f34cb358d6e93565686792c45562b17f8002fce0e8a63b83cbbe786'
+  'd9fdc14f9c2fb95bb38310281268fdad413c1b49fa93213df3184f9b0ca1175c'
+  '98aac34d1f132a35cf506fc3fa196d595dcdeefdebd44b0cc5faaa7a1a210de2'
+)
 
 package() {
-  chmod +x "${srcdir}/Obsidian-${pkgver}-arm64.AppImage"
-  # Worker containers have no FUSE; extract the squashfs instead of mounting.
-  APPIMAGE_EXTRACT_AND_RUN=1 "${srcdir}/Obsidian-${pkgver}-arm64.AppImage" --appimage-extract
-
-  sed -i 's|AppRun|obsidian|' "${srcdir}/squashfs-root/md.obsidian.Obsidian.desktop"
-
-  install -Dm755 "${srcdir}/Obsidian-${pkgver}-arm64.AppImage" \
-    "${pkgdir}/opt/obsidian/obsidian.AppImage"
   install -Dm755 "${srcdir}/obsidian.sh" "${pkgdir}/usr/bin/obsidian"
-  install -Dm644 "${srcdir}/squashfs-root/md.obsidian.Obsidian.desktop" \
-    "${pkgdir}/usr/share/applications/md.obsidian.Obsidian.desktop"
-  install -Dm644 "${srcdir}/squashfs-root/LICENSE.electron.txt" \
-    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.electron.txt"
-  install -Dm644 "${srcdir}/squashfs-root/LICENSES.chromium.html" \
-    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSES.chromium.html"
-  cp -a "${srcdir}/squashfs-root/usr/share/icons" "${pkgdir}/usr/share/"
-  find "${pkgdir}/usr/share/icons" -type d -exec chmod 755 {} +
-  find "${pkgdir}/usr/share/icons" -type f -exec chmod 644 {} +
+  install -Dm644 "${srcdir}/obsidian.desktop" "${pkgdir}/usr/share/applications/obsidian.desktop"
+  install -Dm644 "${srcdir}/LICENSE-Obsidian" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-Obsidian"
+
+  cd "${srcdir}/obsidian-${pkgver}-arm64"
+  install -dm0755 "${pkgdir}/usr/lib/obsidian"
+  find . -type d -exec install -d "${pkgdir}/usr/lib/obsidian/{}" \;
+  find . -type f -exec install -D {} "${pkgdir}/usr/lib/obsidian/{}" \;
+  chmod 755 "${pkgdir}/usr/lib/obsidian/obsidian"
+  [[ -f "${pkgdir}/usr/lib/obsidian/chrome-sandbox" ]] && chmod 4755 "${pkgdir}/usr/lib/obsidian/chrome-sandbox"
+
+  install -Dm644 resources/icon.png "${pkgdir}/usr/share/icons/hicolor/512x512/apps/obsidian.png"
 }

@@ -1,9 +1,13 @@
 # Factory: official Linux ARM64 .deb. The AUR cursor-bin recipe is x86_64
 # and rebuilds against electron42, which is not in any ARM pool ring.
+#
+# Gate: namcap rejects ELF binaries under usr/share/. Install the upstream
+# tree under /usr/lib/cursor and keep /usr/bin/cursor a wrapper that answers
+# --version/--help without starting Electron as root.
 
 pkgname=cursor-bin
 pkgver=3.20.21
-pkgrel=1
+pkgrel=2
 pkgdesc='The AI Code Editor (binary release)'
 arch=('aarch64')
 url='https://www.cursor.com'
@@ -21,16 +25,32 @@ provides=('cursor')
 conflicts=('cursor')
 options=('!strip')
 _commit=f09fca384ceca23f7bf21f9c23655b162641d747
-source=("cursor_${pkgver}_arm64.deb::https://downloads.cursor.com/production/${_commit}/linux/arm64/deb/arm64/deb/cursor_${pkgver}_arm64.deb")
-sha256sums=('609707fcd32a443448fcd01fc5046d541e4ff1334d670ac13648d0782f5c47f1')
+source=(
+  'cursor.sh'
+  "cursor_${pkgver}_arm64.deb::https://downloads.cursor.com/production/${_commit}/linux/arm64/deb/arm64/deb/cursor_${pkgver}_arm64.deb"
+)
+sha256sums=('a1bbf1d8423332a012697ce99e0795bed8d4431dcb56d554207e696d0f5bf0bf'
+            '609707fcd32a443448fcd01fc5046d541e4ff1334d670ac13648d0782f5c47f1')
+noextract=("cursor_${pkgver}_arm64.deb")
+# Upstream ships no automated test target for the repackaged desktop binary.
+# check() intentionally omitted.
 
 package() {
-  bsdtar -xf data.tar.xz -C "${pkgdir}/"
+  cd "${srcdir}"
+  bsdtar --no-same-owner -xf "cursor_${pkgver}_arm64.deb"
+  bsdtar --no-same-owner -xf data.tar.xz
 
-  install -d "${pkgdir}/usr/bin"
-  ln -sf /usr/share/cursor/bin/cursor "${pkgdir}/usr/bin/cursor"
+  install -d "${pkgdir}/usr/lib/cursor"
+  cp -a --no-preserve=ownership usr/share/cursor/. "${pkgdir}/usr/lib/cursor/"
 
-  if [[ -f "${pkgdir}/usr/share/cursor/chrome-sandbox" ]]; then
-    chmod 4755 "${pkgdir}/usr/share/cursor/chrome-sandbox"
+  if [[ -f "${pkgdir}/usr/lib/cursor/cursor.desktop" ]]; then
+    install -Dm644 "${pkgdir}/usr/lib/cursor/cursor.desktop" \
+      "${pkgdir}/usr/share/applications/cursor.desktop"
+  fi
+
+  install -Dm755 "${srcdir}/cursor.sh" "${pkgdir}/usr/bin/cursor"
+
+  if [[ -f "${pkgdir}/usr/lib/cursor/chrome-sandbox" ]]; then
+    chmod 4755 "${pkgdir}/usr/lib/cursor/chrome-sandbox"
   fi
 }

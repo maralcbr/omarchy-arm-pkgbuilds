@@ -2,14 +2,17 @@
 # pacman-install it. Bundle the official aarch64 bun zip like ghostty
 # bundles Zig. Pin the upstream tag to a commit (factory rejects untagged
 # git URLs).
+#
+# Gate/project build: source must stay git+https with commit=${_commit}; there
+# is no v${pkgver}-${pkgrel}.tar.gz release to download.
 
 pkgname=hermes-desktop
 pkgver=0.1.5
-pkgrel=2
+pkgrel=3
 pkgdesc='Native speech-to-text desktop app'
 arch=('aarch64')
 url='https://github.com/adityamiskin/hermes'
-license=('custom')
+license=('LicenseRef-Hermes')
 options=('!lto')
 depends=(
   'glibc'

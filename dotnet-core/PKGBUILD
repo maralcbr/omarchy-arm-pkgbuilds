@@ -5,13 +5,16 @@
 # pacman-installs every .SRCINFO depend before the build, so a split that
 # depends on sibling packages (dotnet-runtime → dotnet-host) fails with
 # "target not found: dotnet-host".
+#
+# Gate: namcap rejects ELF binaries under usr/share/. Install under
+# /usr/lib/dotnet instead and keep the profile.d helper in sync.
 
 pkgname=dotnet-core
 pkgver=10.0.11.sdk400
 _runtimever=10.0.11
 _sdkver=10.0.400
 _short_ver=10.0
-pkgrel=2
+pkgrel=3
 pkgdesc='.NET host, runtime and SDK (Microsoft arm64 binaries)'
 arch=('aarch64')
 url='https://www.microsoft.com/net/core'
@@ -54,32 +57,34 @@ conflicts=(
 )
 source=('dotnet.sh')
 source_aarch64=("https://builds.dotnet.microsoft.com/dotnet/Sdk/${_sdkver}/dotnet-sdk-${_sdkver}-linux-arm64.tar.gz")
-sha512sums=('768151c7179fb6a126b3de9cae01e363e8894f6fab384b1e2c5066c2adca4578638983b1b62aea10dd18045e6d6e8f8ea13280481134de94f004a118919b2c06')
+sha512sums=('4118a6a008d7bca7c6fc055079cc2c730ad1a0b88fff1834148b7d39c5bb0b6babfa40c148ce44fcc9ec02d4b21d4c2bb17f6e50ec3cec6dee27bc1d2f43060c')
 sha512sums_aarch64=('a1b45da58e5591fff909a6126ac6bfc1ef9c12bc72c0625f7815e83a82be1a902317ee96926cbbf81324a45c6abf2ed8102a216d0507879cc166159af78d1b77')
+# Upstream ships no automated test target for the repackaged SDK tarball.
+# check() intentionally omitted.
 
 package() {
-  local msarch=arm64
+  local msarch=arm64 root="${pkgdir}/usr/lib/dotnet"
 
-  install -dm 755 "${pkgdir}"/usr/{bin,lib,share/{dotnet,dnx,licenses/dotnet-host,dotnet/shared,dotnet/packs}}
-  cp -dr --no-preserve='ownership' dotnet host dnx "${pkgdir}"/usr/share/dotnet/
+  install -dm 755 "${pkgdir}"/usr/{bin,lib,share/licenses/dotnet-host}
+  cp -dr --no-preserve='ownership' dotnet host dnx "${root}/"
   cp -dr --no-preserve='ownership' LICENSE.txt ThirdPartyNotices.txt "${pkgdir}"/usr/share/licenses/dotnet-host
-  ln -sf /usr/share/dotnet/dotnet "${pkgdir}"/usr/bin/dotnet
-  ln -sf /usr/share/dotnet/dnx "${pkgdir}"/usr/bin/dnx
-  ln -sf /usr/share/dotnet/host/fxr/"${_runtimever}"/libhostfxr.so "${pkgdir}"/usr/lib/libhostfxr.so
+  ln -sf /usr/lib/dotnet/dotnet "${pkgdir}"/usr/bin/dotnet
+  ln -sf /usr/lib/dotnet/dnx "${pkgdir}"/usr/bin/dnx
+  ln -sf /usr/lib/dotnet/host/fxr/"${_runtimever}"/libhostfxr.so "${pkgdir}"/usr/lib/libhostfxr.so
   install -Dm 644 "${srcdir}"/dotnet.sh -t "${pkgdir}"/etc/profile.d/
 
-  cp -dr --no-preserve='ownership' shared/Microsoft.NETCore.App "${pkgdir}"/usr/share/dotnet/shared/
+  cp -dr --no-preserve='ownership' shared/Microsoft.NETCore.App "${root}/shared/"
   ln -s dotnet-host "${pkgdir}"/usr/share/licenses/dotnet-runtime
 
-  cp -dr --no-preserve='ownership' shared/Microsoft.AspNetCore.App "${pkgdir}"/usr/share/dotnet/shared/
+  cp -dr --no-preserve='ownership' shared/Microsoft.AspNetCore.App "${root}/shared/"
   ln -s dotnet-host "${pkgdir}"/usr/share/licenses/aspnet-runtime
 
-  cp -dr --no-preserve='ownership' sdk sdk-manifests templates "${pkgdir}"/usr/share/dotnet/
+  cp -dr --no-preserve='ownership' sdk sdk-manifests templates "${root}/"
   ln -s dotnet-host "${pkgdir}"/usr/share/licenses/dotnet-sdk
 
-  cp -dr --no-preserve='ownership' packs/Microsoft.NETCore.App.{Host.linux-${msarch},Ref} "${pkgdir}"/usr/share/dotnet/packs/
+  cp -dr --no-preserve='ownership' packs/Microsoft.NETCore.App.{Host.linux-${msarch},Ref} "${root}/packs/"
   ln -s dotnet-host "${pkgdir}"/usr/share/licenses/dotnet-targeting-pack
 
-  cp -dr --no-preserve='ownership' packs/Microsoft.AspNetCore.App.Ref "${pkgdir}"/usr/share/dotnet/packs/
+  cp -dr --no-preserve='ownership' packs/Microsoft.AspNetCore.App.Ref "${root}/packs/"
   ln -s dotnet-host "${pkgdir}"/usr/share/licenses/aspnet-targeting-pack
 }
