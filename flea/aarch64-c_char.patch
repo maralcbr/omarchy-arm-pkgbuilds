@@ -1,0 +1,22 @@
+--- a/src/backend/fsinfo.rs
++++ b/src/backend/fsinfo.rs
+@@ -54,7 +54,7 @@ struct StatFs {
+ }
+ 
+ extern "C" {
+-    fn statfs(path: *const i8, buf: *mut StatFs) -> i32;
++    fn statfs(path: *const std::ffi::c_char, buf: *mut StatFs) -> i32;
+ }
+ 
+ pub struct Info {
+--- a/src/backend/ops.rs
++++ b/src/backend/ops.rs
+@@ -19,7 +19,7 @@ const NEW_FOLDER: &str = "New Folder";
+ 
+ // std has no wrapper for the flag that makes rename refuse to clobber, so the syscall is declared here rather than taking a crate.
+ extern "C" {
+-    fn renameat2(olddirfd: i32, oldpath: *const i8, newdirfd: i32, newpath: *const i8, flags: u32) -> i32;
++    fn renameat2(olddirfd: i32, oldpath: *const std::ffi::c_char, newdirfd: i32, newpath: *const std::ffi::c_char, flags: u32) -> i32;
+ }
+ 
+ // A name from the client is a trust boundary: anything with a separator would move the file out of its own directory.

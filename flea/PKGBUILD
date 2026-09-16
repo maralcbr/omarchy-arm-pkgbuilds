@@ -47,6 +47,7 @@ source=(
   "security-27d19ca.patch::$url/commit/${_security_patches[1]}.patch"
   "security-23290ce.patch::$url/commit/${_security_patches[2]}.patch"
   "security-b4b7ee4.patch::$url/commit/${_security_patches[3]}.patch"
+  'aarch64-c_char.patch'
 )
 sha256sums=(
   '3599ab76253c444dea027f1ebe85b32612d9a174e60eb8aca33ee21d9e2d6973'
@@ -54,6 +55,7 @@ sha256sums=(
   'e38f0b0efe0bd55bb82efeef974f5fccda4526b311f2cc57b66ce50b1afa1d18'
   'feb0a673a855ffee3122139c3dd32724554884dd300ef468aecae27070358f1d'
   'dea27c4558ad325efb155bbc8c050ab2f63195b95818247395bc32a7223cf1bc'
+  '328b8db52af326bf3cab6002a6f230fa79400fb33cea65c360a6d8bf34036a86'
 )
 
 prepare() {
@@ -97,6 +99,9 @@ prepare() {
       return 1
     fi
   done
+
+  # aarch64 libc uses unsigned char; the FFI declarations were written for x86_64.
+  patch --batch --forward -Np1 -i "$srcdir/aarch64-c_char.patch"
 }
 
 build() {
