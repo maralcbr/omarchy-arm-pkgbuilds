@@ -66,6 +66,7 @@ package() {
   local msarch=arm64 root="${pkgdir}/usr/lib/dotnet"
 
   install -dm 755 "${pkgdir}"/usr/{bin,lib,share/licenses/dotnet-host}
+  install -dm 755 "${root}" "${root}/shared" "${root}/packs"
   cp -dr --no-preserve='ownership' dotnet host dnx "${root}/"
   cp -dr --no-preserve='ownership' LICENSE.txt ThirdPartyNotices.txt "${pkgdir}"/usr/share/licenses/dotnet-host
   ln -sf /usr/lib/dotnet/dotnet "${pkgdir}"/usr/bin/dotnet
