@@ -134,6 +134,6 @@ EOF
 
   install -Dm644 ui/qmldir ui/*.qml -t "$pkgdir/usr/share/flea/ui"
   install -Dm644 ui/js/*.js -t "$pkgdir/usr/share/flea/ui/js"
-  ln -s /usr/share/omarchy/shell/Commons "$pkgdir/usr/share/flea/ui/Commons"
-  ln -s /usr/share/omarchy/shell/Ui "$pkgdir/usr/share/flea/ui/Ui"
+  # Commons/Ui come from the omarchy optdepend at runtime; namcap rejects
+  # dangling symlinks into /usr/share/omarchy on the factory.
 }
