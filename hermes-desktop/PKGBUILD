@@ -8,7 +8,7 @@
 
 pkgname=hermes-desktop
 pkgver=0.1.5
-pkgrel=4
+pkgrel=5
 pkgdesc='Native speech-to-text desktop app'
 arch=('aarch64')
 url='https://github.com/adityamiskin/hermes'
@@ -42,6 +42,8 @@ sha256sums=(
 )
 
 prepare() {
+  # The official bun zip ships `bun` only; package.json scripts call bunx.
+  ln -sf bun "${srcdir}/bun-linux-aarch64/bunx"
   export PATH="${srcdir}/bun-linux-aarch64:${PATH}"
   cd "${srcdir}/hermes"
   bun install --frozen-lockfile
