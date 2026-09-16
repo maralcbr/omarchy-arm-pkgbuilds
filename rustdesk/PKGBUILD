@@ -3,7 +3,7 @@
 
 pkgname=rustdesk
 pkgver=1.4.9
-pkgrel=1
+pkgrel=2
 pkgdesc='An open-source remote desktop application'
 arch=('aarch64')
 url='https://rustdesk.com'
@@ -25,6 +25,7 @@ optdepends=('libayatana-appindicator: tray support')
 provides=('rustdesk')
 conflicts=('rustdesk-bin')
 options=('!strip')
+makedepends=('patchelf')
 source=(
   'rustdesk.sh'
   'LICENCE'
@@ -60,4 +61,13 @@ package() {
   if [[ -d usr/share/icons ]]; then
     cp -a --no-preserve=ownership usr/share/icons "${pkgdir}/usr/share/"
   fi
+
+  # Upstream Flutter plugins record the CI build dir as RUNPATH.
+  local f
+  while IFS= read -r f; do
+    patchelf --remove-rpath "$f" 2>/dev/null || true
+  done < <(find "${pkgdir}/usr/lib/rustdesk" -type f)
 }
+
+# Upstream ships no automated test target for the repackaged desktop binary.
+# check() intentionally omitted.

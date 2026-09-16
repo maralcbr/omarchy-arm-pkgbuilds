@@ -102,3 +102,6 @@ package() {
   install -Dm755 "${srcdir}/t3-launcher.sh" "${pkgdir}/usr/bin/t3"
   install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+
+# Upstream ships no automated test target for the repackaged desktop binary.
+# check() intentionally omitted.

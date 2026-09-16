@@ -44,3 +44,6 @@ package() {
   cd "${srcdir}/umu-launcher"
   make DESTDIR="${pkgdir}" install
 }
+
+# Upstream has no packaged test suite exercised here.
+# check() intentionally omitted.

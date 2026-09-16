@@ -87,3 +87,6 @@ package() {
     chmod 4755 "${pkgdir}/usr/lib/grok-bot/chrome-sandbox"
   fi
 }
+
+# Upstream ships no automated test target for the repackaged desktop binary.
+# check() intentionally omitted.

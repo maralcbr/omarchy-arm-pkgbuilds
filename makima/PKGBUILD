@@ -29,3 +29,6 @@ package() {
     install -Dm644 50-makima.rules "$pkgdir/usr/lib/udev/rules.d/50-makima.rules"
   fi
 }
+
+# No packaged test suite in the release tarball.
+# check() intentionally omitted.

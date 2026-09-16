@@ -140,3 +140,6 @@ package() {
   install -Dm644 pkgbuild/omapresent.desktop \
     "$pkgdir/usr/share/applications/omapresent.desktop"
 }
+
+# The packaged binary has no useful automated test target on the factory.
+# check() intentionally omitted.

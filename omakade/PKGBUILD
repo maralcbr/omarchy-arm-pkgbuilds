@@ -22,3 +22,6 @@ build() {
 package() {
   DESTDIR="$pkgdir" cmake --install build
 }
+
+# Upstream disables tests at configure time (-DBUILD_TESTING=OFF).
+# check() intentionally omitted.
