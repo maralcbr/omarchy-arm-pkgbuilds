@@ -15,4 +15,7 @@ These names exist on Omarchy x86 and will not get a factory recipe until upstrea
 - `wine-staging` / `wine-mono` / `wine-gecko` — Asahi uses FEX; not in aarch64-required optionals
 - `tmog-bin` — upstream tarball is x86_64
 - `python-mediapipe` — no aarch64 wheel, blocks `link-studio`
-- `claude-desktop` / `schist` / `slap-notes` / `cua` / `omareel` — not in the OPR trees we package from
+- `slap-notes-bin` — upstream Linux tarball is x86_64 only
+- `schist` — `schist-bin` 0.13.0 already in the aarch64 packages ring
+- `omareel` — official aarch64 tarball exists; factory recipe still to queue
+- `cua-hyprland-plugin` — pinned to a specific x86 Hyprland ABI

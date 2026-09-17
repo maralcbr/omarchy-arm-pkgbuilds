@@ -1,0 +1,55 @@
+# Factory: official Linux arm64 tarball from trycua/cua (cua-driver-rs-v*).
+# A --version wrapper keeps gate smoke from launching the daemon as root.
+
+pkgname=cua-driver-bin
+pkgver=0.28.2
+pkgrel=1
+pkgdesc='Desktop control daemon from trycua/cua: window driving, clicks, typing, browser automation'
+arch=('aarch64')
+url='https://github.com/trycua/cua'
+license=('MIT')
+depends=(
+  'gcc-libs'
+  'glibc'
+  'libx11'
+  'libxi'
+  'libxkbcommon'
+)
+optdepends=(
+  'ffmpeg: video capture (start_recording)'
+  'wf-recorder: native Wayland video capture'
+)
+provides=('cua-driver')
+conflicts=('cua-driver')
+options=('!strip' '!debug')
+source=(
+  "cua-driver-rs-${pkgver}-linux-arm64-binary.tar.gz::https://github.com/trycua/cua/releases/download/cua-driver-rs-v${pkgver}/cua-driver-rs-${pkgver}-linux-arm64-binary.tar.gz"
+  'cua-driver.sh'
+  'cua-driver.service'
+  'LICENSE'
+)
+noextract=("cua-driver-rs-${pkgver}-linux-arm64-binary.tar.gz")
+sha256sums=(
+  '55e8a32839a4ac369a773df4dac87b345bd4567779221ade4a5e39223a45a2e8'
+  'ec7195d9c6b0e848c70496016e4a5f9453000a005e286b514981f5e2cdf32ae1'
+  '5ac3b4205f6256c9f9c0044ef13c53803a673de47d864574daefdb3b6099207c'
+  'c0779290c1d4783169aa3dbfb55feb505e563ef8a004bbf55298ceffcfbda8d9'
+)
+
+# Upstream ships no packaged test target for the daemon binary.
+# check() intentionally omitted.
+
+package() {
+  local _libdir="${pkgdir}/usr/lib/cua-driver"
+  install -d "$_libdir"
+  bsdtar --no-same-owner -xf "${srcdir}/cua-driver-rs-${pkgver}-linux-arm64-binary.tar.gz" -C "$_libdir"
+
+  install -Dm755 "${srcdir}/cua-driver.sh" "${pkgdir}/usr/bin/cua-driver"
+  if [[ -e ${_libdir}/cua-cursor-theme ]]; then
+    ln -s /usr/lib/cua-driver/cua-cursor-theme "${pkgdir}/usr/bin/cua-cursor-theme"
+  fi
+
+  install -Dm644 "${srcdir}/cua-driver.service" \
+    "${pkgdir}/usr/lib/systemd/user/cua-driver.service"
+  install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,80 @@
+# Factory: official Linux arm64 .deb from Anthropic's APT pool.
+# Namcap rejects ELF under /opt; upstream already ships /usr/lib/claude-desktop.
+# A --version wrapper keeps gate smoke from launching Electron as root.
+# The AUR virtiofsd symlink is omitted: namcap rejects dangling links.
+
+pkgname=claude-desktop
+pkgver=2.110.0
+pkgrel=1
+pkgdesc='Official Claude AI desktop app from Anthropic — Chat, Cowork, and Claude Code'
+arch=('aarch64')
+url='https://claude.com/download'
+license=('LicenseRef-Proprietary')
+depends=(
+  'alsa-lib'
+  'at-spi2-core'
+  'cairo'
+  'dbus'
+  'expat'
+  'gcc-libs'
+  'glib2'
+  'glibc'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libcups'
+  'libdrm'
+  'libnotify'
+  'libsecret'
+  'libx11'
+  'libxcb'
+  'libxkbcommon'
+  'libxtst'
+  'mesa'
+  'nss'
+  'pango'
+  'util-linux-libs'
+  'xdg-desktop-portal'
+  'xdg-utils'
+)
+optdepends=(
+  'qemu-system-aarch64: run Cowork tasks in a local virtual machine'
+  'edk2-aarch64: UEFI firmware for the Cowork virtual machine'
+  'gnome-keyring: credential storage via Secret Service'
+  'libayatana-appindicator: system tray icon'
+  'virtiofsd: host/VM filesystem for Cowork'
+)
+conflicts=('claude' 'claude-desktop-bin')
+options=('!strip' '!debug')
+_baseurl='https://downloads.claude.ai/claude-desktop/apt/stable/pool/main/c/claude-desktop'
+source=(
+  "${pkgname}_${pkgver}_arm64.deb::${_baseurl}/${pkgname}_${pkgver}_arm64.deb"
+  'claude-desktop.sh'
+)
+noextract=("${pkgname}_${pkgver}_arm64.deb")
+sha256sums=(
+  'de9f24034f33dcadc53bedee92da6604e2c9268497ebff5447fedc092c884e71'
+  '798466fbf88596e30c9004aabcf6591dc9d79ad940f4de5302bbf34a4142e47e'
+)
+
+# Upstream ships no packaged test target for the desktop binary.
+# check() intentionally omitted.
+
+package() {
+  cd "${srcdir}"
+  bsdtar --no-same-owner -xf "${pkgname}_${pkgver}_arm64.deb"
+  bsdtar --no-same-owner -xf data.tar.xz -C "${pkgdir}"
+
+  rm -f "${pkgdir}/usr/bin/claude-desktop"
+  install -Dm755 "${srcdir}/claude-desktop.sh" "${pkgdir}/usr/bin/claude-desktop"
+
+  if [[ -f ${pkgdir}/usr/lib/claude-desktop/chrome-sandbox ]]; then
+    chmod 4755 "${pkgdir}/usr/lib/claude-desktop/chrome-sandbox"
+  fi
+
+  rm -rf "${pkgdir}/usr/share/lintian"
+
+  if [[ -f ${pkgdir}/usr/share/doc/claude-desktop/copyright ]]; then
+    install -Dm644 "${pkgdir}/usr/share/doc/claude-desktop/copyright" \
+      "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  fi
+}
