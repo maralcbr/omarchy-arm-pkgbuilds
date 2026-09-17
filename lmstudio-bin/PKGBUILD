@@ -22,12 +22,15 @@ source=(
   'LICENSE-LM-Studio'
 )
 sha256sums=(
-  'SKIP'
+  '708908d1510d19ec965514bdf09e6fc688efa076ec166a323c1305535b2939a2'
   'c2230027c496b885270b77918acece95377de2f5d74021450faf09bec684d535'
   '9f791789c959a11316328692807737a5f1bc1c170ae99ec04c56bfd8ee8263e5'
   'd5ac11aae025cd1cc0f9aa0713ee427dc6f46e4d1adac2a5948f93d8bbca705f'
   'fda9ef00e0f42a10c08311effc2e1bcfacbd42cc23c15782cbc9fd678056ffb7'
 )
+
+# Upstream ships no packaged test target for the AppImage.
+# check() intentionally omitted.
 
 package() {
   install -Dm755 "${srcdir}/LM-Studio-${_pkgver}-arm64.AppImage" \
